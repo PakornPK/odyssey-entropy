@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ODYSSEUS // ENTROPY (High-Detail 3D Ship & Audio)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Three.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'JetBrains Mono', monospace;
+      background-color: #050508;
+      color: #f1f5f9;
+      overflow-x: hidden;
+    }
+    .font-title { font-family: 'Space Grotesk', sans-serif; }
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 sm:p-8 relative selection:bg-amber-500 selection:text-black">
+
+  <!-- Three.js Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Dark Overlay for Readability -->
+  <div class="fixed inset-0 bg-gradient-to-t from-black via-slate-950/50 to-black/70 -z-5 pointer-events-none"></div>
+
+  <!-- START GAME / BANNER MODAL -->
+  <div id="start-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md transition-opacity duration-300">
+    <div class="max-w-lg w-full bg-slate-950/90 border border-slate-800 rounded-xl overflow-hidden shadow-2xl p-6 text-center space-y-5">
+      
+      <!-- Banner Image -->
+      <div class="relative w-full rounded-lg overflow-hidden border border-slate-800 bg-slate-900">
+        <img src="banner.png" alt="ODYSSEUS // ENTROPY Banner" class="w-full h-auto object-cover max-h-64" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-8 text-slate-500 text-xs tracking-widest uppercase\'>[ BANNER.PNG PLACEHOLDER ]</div>';">
+      </div>
+
+      <div>
+        <h1 class="font-title text-xl sm:text-2xl font-bold tracking-wider text-amber-400">ODYSSEUS // ENTROPY</h1>
+        <p class="text-xs text-slate-400 mt-1">A Nolan-Inspired Interactive Odyssey</p>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 leading-relaxed text-left border-l-2 border-amber-500/60 pl-3 py-1 bg-slate-900/50 rounded-r">
+        ก้าวข้ามมิติเวลา ร่วมการเดินทางของโอดีสซีอุสผ่าน 10 สถานการณ์เพื่อสืบหาความจริงและกู้คืนความทรงจำในการกลับบ้าน
+      </p>
+
+      <button onclick="startGame()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-black font-bold tracking-wider rounded-lg transition-all duration-200 cursor-pointer shadow-lg hover:shadow-amber-500/20 text-sm">
+        ▶ START TIMELINE
+      </button>
+    </div>
+  </div>
+
+  <!-- Audio Toggle -->
+  <div id="audio-banner" class="fixed top-4 right-4 z-40">
+    <button id="audio-btn" onclick="toggleAudio()" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/40 border border-amber-500/60 rounded text-xs text-amber-300 transition cursor-pointer flex items-center gap-2 backdrop-blur-md">
+      <span id="audio-icon">🔊</span> <span id="audio-text">AUDIO ON</span>
+    </button>
+  </div>
+
+  <!-- Header -->
+  <header class="w-full max-w-2xl mx-auto flex justify-between items-center border-b border-slate-800/80 pb-4 text-xs tracking-wider text-slate-400 backdrop-blur-md bg-slate-950/40 p-3 rounded-t-lg">
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      SUBJECT: <span class="text-slate-100 font-bold">ODYSSEUS</span>
+    </div>
+    <div class="flex gap-6 font-mono">
+      <div>PROGRESS: <span id="step-count" class="text-amber-400 font-bold text-sm">1/10</span></div>
+      <div>MEMORY: <span id="memory-pts" class="text-emerald-400 font-bold text-sm">0</span></div>
+      <div>ENTROPY: <span id="entropy-pts" class="text-rose-400 font-bold text-sm">0%</span></div>
+    </div>
+  </header>
+
+  <!-- Main Game Panel -->
+  <main class="w-full max-w-2xl mx-auto my-auto py-6 relative z-10">
+    <div id="scene-title" class="font-title text-xs tracking-widest text-amber-400 font-bold uppercase mb-4 bg-amber-950/60 border border-amber-800/70 w-fit px-3 py-1 rounded backdrop-blur-md shadow-lg">
+      SCENE 01 // SHORE OF NON-TIME
+    </div>
+    
+    <div id="story-text" class="text-base sm:text-lg leading-relaxed space-y-4 mb-8 text-slate-100 bg-slate-950/85 border border-slate-800/80 p-5 sm:p-6 rounded-lg backdrop-blur-md shadow-2xl">
+      <!-- Story content -->
+    </div>
+
+    <div id="choices-container" class="space-y-3">
+      <!-- Buttons -->
+    </div>
+  </main>
+
+  <footer class="w-full max-w-2xl mx-auto border-t border-slate-800/80 pt-4 text-center text-[11px] text-slate-500 tracking-widest relative z-10 backdrop-blur-sm">
+    NOLAN CHRONO ENGINE // DETAILED 3D GALLEY & SYNTH AUDIO
+  </footer>
+
+  <!-- WEB AUDIO API SYNTHESIZER ENGINE -->
+  <script>
+    let audioCtx = null;
+    let isAudioOn = true;
+    let droneOsc1 = null, droneOsc2 = null, droneGain = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      droneOsc1 = audioCtx.createOscillator();
+      droneOsc2 = audioCtx.createOscillator();
+      droneGain = audioCtx.createGain();
+
+      droneOsc1.type = 'sawtooth';
+      droneOsc1.frequency.setValueAtTime(55, audioCtx.currentTime);
+
+      droneOsc2.type = 'sine';
+      droneOsc2.frequency.setValueAtTime(55.5, audioCtx.currentTime);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(180, audioCtx.currentTime);
+
+      droneGain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+
+      droneOsc1.connect(filter);
+      droneOsc2.connect(filter);
+      filter.connect(droneGain);
+      droneGain.connect(audioCtx.destination);
+
+      droneOsc1.start();
+      droneOsc2.start();
+    }
+
+    function startGame() {
+      initAudio();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      playClickSFX();
+      
+      const modal = document.getElementById('start-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => { modal.style.display = 'none'; }, 300);
+    }
+
+    function toggleAudio() {
+      if (!audioCtx) initAudio();
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      isAudioOn = !isAudioOn;
+      const btnText = document.getElementById('audio-text');
+      const btnIcon = document.getElementById('audio-icon');
+
+      if (isAudioOn) {
+        droneGain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.1);
+        btnText.innerText = "AUDIO ON";
+        btnIcon.innerText = "🔊";
+      } else {
+        droneGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
+        btnText.innerText = "AUDIO MUTED";
+        btnIcon.innerText = "🔇";
+      }
+    }
+
+    function playClickSFX() {
+      if (!audioCtx || !isAudioOn) return;
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    }
+  </script>
+
+  <!-- THREE.JS 3D BACKGROUND ENGINE -->
+  <script>
+    const container = document.getElementById('canvas-container');
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050508, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 12, 28);
+    camera.lookAt(0, 2, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const ambientLight = new THREE.AmbientLight(0x1e293b, 1.5);
+    scene.add(ambientLight);
+
+    const mainLight = new THREE.DirectionalLight(0xf59e0b, 2.5);
+    mainLight.position.set(10, 20, 15);
+    scene.add(mainLight);
+
+    const cyanPointLight = new THREE.PointLight(0x38bdf8, 3, 40);
+    cyanPointLight.position.set(-10, 5, 5);
+    scene.add(cyanPointLight);
+
+    const oceanGeo = new THREE.PlaneGeometry(120, 120, 50, 50);
+    const oceanMat = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      wireframe: true,
+      roughness: 0.8
+    });
+    const ocean = new THREE.Mesh(oceanGeo, oceanMat);
+    ocean.rotation.x = -Math.PI / 2;
+    ocean.position.y = -3;
+    scene.add(ocean);
+
+    const shipGroup = new THREE.Group();
+
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(0, -6);
+    hullShape.quadraticCurveTo(2.2, -2, 2.0, 6);
+    hullShape.lineTo(-2.0, 6);
+    hullShape.quadraticCurveTo(-2.2, -2, 0, -6);
+
+    const extrudeSettings = { depth: 2.2, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 0.4, bevelThickness: 0.4 };
+    const hullGeo = new THREE.ExtrudeGeometry(hullShape, extrudeSettings);
+    const hullMat = new THREE.MeshStandardMaterial({ color: 0x1e1b18, roughness: 0.4, metalness: 0.6 });
+    const hull = new THREE.Mesh(hullGeo, hullMat);
+    hull.rotation.x = Math.PI / 2;
+    hull.position.y = 0.8;
+    shipGroup.add(hull);
+
+    const hullWireMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true });
+    const hullWire = new THREE.Mesh(hullGeo, hullWireMat);
+    hullWire.rotation.x = Math.PI / 2;
+    hullWire.position.y = 0.8;
+    shipGroup.add(hullWire);
+
+    const prowGeo = new THREE.TorusGeometry(3, 0.15, 8, 24, Math.PI / 2);
+    const prowMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.8 });
+    const prow = new THREE.Mesh(prowGeo, prowMat);
+    prow.position.set(0, 1.8, 6.8);
+    prow.rotation.y = Math.PI / 2;
+    shipGroup.add(prow);
+
+    const mastGeo = new THREE.CylinderGeometry(0.12, 0.18, 9);
+    const mastMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+    const mast = new THREE.Mesh(mastGeo, mastMat);
+    mast.position.set(0, 4.5, 0);
+    shipGroup.add(mast);
+
+    const yardGeo = new THREE.CylinderGeometry(0.08, 0.08, 7);
+    const yard = new THREE.Mesh(yardGeo, mastMat);
+    yard.rotation.z = Math.PI / 2;
+    yard.position.set(0, 7, 0);
+    shipGroup.add(yard);
+
+    const sailGeo = new THREE.PlaneGeometry(6.5, 5, 12, 12);
+    const pos = sailGeo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+      let z = Math.sin((pos.getY(i) + 2.5) / 5 * Math.PI) * 0.8;
+      pos.setZ(i, z);
+    }
+    sailGeo.computeVertexNormals();
+    const sailMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, side: THREE.DoubleSide, roughness: 0.2 });
+    const sail = new THREE.Mesh(sailGeo, sailMat);
+    sail.position.set(0, 4.5, 0.4);
+    shipGroup.add(sail);
+
+    const sailWireMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
+    const sailWire = new THREE.Mesh(sailGeo, sailWireMat);
+    sailWire.position.set(0, 4.5, 0.4);
+    shipGroup.add(sailWire);
+
+    const oarMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+    for (let i = -4; i <= 4; i += 1.6) {
+      const oarL = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 4), oarMat);
+      oarL.position.set(1.8, 0.2, i);
+      oarL.rotation.z = -Math.PI / 4;
+      shipGroup.add(oarL);
+
+      const oarR = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 4), oarMat);
+      oarR.position.set(-1.8, 0.2, i);
+      oarR.rotation.z = Math.PI / 4;
+      shipGroup.add(oarR);
+    }
+
+    shipGroup.position.set(0, -1, 3);
+    shipGroup.rotation.y = -Math.PI / 6;
+    scene.add(shipGroup);
+
+    const particlesCount = 500;
+    const posArray = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount * 3; i++) {
+      posArray[i] = (Math.random() - 0.5) * 80;
+    }
+    const particlesGeo = new THREE.BufferGeometry();
+    particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMat = new THREE.PointsMaterial({ size: 0.12, color: 0xf59e0b, transparent: true, opacity: 0.5 });
+    const particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+    scene.add(particlesMesh);
+
+    let clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      const pos = oceanGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        const u = pos.getX(i);
+        const v = pos.getY(i);
+        const z = Math.sin(u * 0.15 + elapsedTime * 1.5) * 1.2 + Math.cos(v * 0.15 + elapsedTime * 1.5) * 1.2;
+        pos.setZ(i, z);
+      }
+      pos.needsUpdate = true;
+
+      shipGroup.position.y = Math.sin(elapsedTime * 1.4) * 0.4 - 1.0;
+      shipGroup.rotation.z = Math.sin(elapsedTime * 1.1) * 0.06;
+      shipGroup.rotation.x = Math.cos(elapsedTime * 0.9) * 0.04;
+
+      particlesMesh.rotation.y = elapsedTime * 0.02;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+
+  <!-- GAME LOGIC SCRIPT -->
+  <script>
+    let state = { memory: 0, entropy: 0, step: 1 };
+
+    const script = [
+      {
+        title: "SCENE 01 // SHORE OF NON-TIME",
+        text: `<p>คุณตื่นขึ้นมาบนหาดทรายสีดำ ท้องฟ้าไม่ใช่เมฆ แต่เป็นเกลียวคลื่นขนาดยักษ์ที่หยุดนิ่งกลางอากาศ วิทยุข้างตัวดังซ่า... พร้อมเสียงเพเนโลพีสลับคลื่นแทรก</p>
+               <p class="italic text-slate-300 border-l-4 border-amber-500 pl-4 py-1 bg-slate-900/60 rounded-r">"โอดีสซีอุส... คุณกำลังเดินทางผิดทิศ เวลาไม่ได้เดินเป็นเส้นตรงอีกต่อไป"</p>`,
+        choices: [
+          { text: "1. หมุนคลื่นวิทยุเพื่อตั้งแกนเวลาหาเสียงเพเนโลพี", mem: 10, ent: 5 },
+          { text: "2. เดินก้าวเข้าไปในเกลียวคลื่นยักษ์ตรงหน้าทันที", mem: 5, ent: 15 }
+        ]
+      },
+      {
+        title: "SCENE 02 // CAVE OF THE ONE-EYED SINGULARITY",
+        text: `<p>คุณหลุดเข้ามาในสถานีวิจัยร้างกลางอวกาศ ยักษ์ตาเดียว Polyphemus ไม่ใช่สัตว์ประหลาด แต่มันคือ <strong>หลุมดำจิ๋ว (Singularity)</strong> ที่มีดวงตาเป็นกล้องสแกนตรวจจับมวลสาร</p>`,
+        choices: [
+          { text: "1. บอกมันว่า 'ฉันคือ Nobody' เพื่อให้ระบบอัลกอริทึมสแกนหาตัวตนไม่เจอ", mem: 15, ent: 0 },
+          { text: "2. ใช้แท่งพลังงานยิงสู้ตรงๆ เพื่อฝ่าวงล้อมออกไป", mem: 5, ent: 10 }
+        ]
+      },
+      {
+        title: "SCENE 03 // ISLE OF LOTUS EATERS (STASIS)",
+        text: `<p>คุณพบเมืองสไตล์ Brutalist ที่ผู้คนนั่งนิ่งเงียบ พวกเขากิน 'สปอร์พืชโลตัส' ที่ทำให้จมอยู่ในความทรงจำที่แสนสุขที่สุดในอดีตโดยไม่ยอมลุกไปไหน</p>`,
+        choices: [
+          { text: "1. ปฏิเสธการกิน แล้วฉุดดึงลูกเรือขึ้นยานปฏิเสธความสุขลวงตา", mem: 10, ent: 5 },
+          { text: "2. แอบเก็บสปอร์ไว้ส่วนหนึ่ง เผื่อใช้ลบความเจ็บปวดในอนาคต", mem: 5, ent: 15 }
+        ]
+      },
+      {
+        title: "SCENE 04 // THE WINDS OF AEOLUS",
+        text: `<p>เทพเจ้าแห่งลม Aeolus มอบ 'ถุงบรรจุสเปกตรัมเวลา' ให้คุณ มันสามารถเร่งเวลายานให้ถึงบ้านได้ทันที แต่มันมีกฎว่าห้ามเปิดหักโหม</p>`,
+        choices: [
+          { text: "1. ค่อยๆ ปล่อยพลังงานทีละน้อย ปล่อยให้เวลาเดินตามกฎฟิสิกส์", mem: 10, ent: 0 },
+          { text: "2. ปลดล็อคความเร็วสูงสุดเพื่อวาร์ปข้ามมิติในครั้งเดียว", mem: 0, ent: 25 }
+        ]
+      },
+      {
+        title: "SCENE 05 // LAESTRYGONIAN GRAVITY WELL",
+        text: `<p>ยานของคุณถูกแรงดึงดูดมหาศาลจากดาวเคราะห์ยักษ์ Laestrygonians ฉุดร่วง นาฬิกาทุกเรือนในยานเริ่มเดินถอยหลังด้วยความเร็วสูง</p>`,
+        choices: [
+          { text: "1. สลัดชิ้นส่วนยานทิ้งบางส่วนเพื่อลดมวล แล้วดีดตัวออกจากแรงดึงดูด", mem: 10, ent: 5 },
+          { text: "2. ใช้ทฤษฎีแรงโน้มถ่วง ปล่อยให้ยานหมุนเหวี่ยงรอบดาวเพื่อสร้างแรงดีดตัว", mem: 15, ent: 5 }
+        ]
+      },
+      {
+        title: "SCENE 06 // CIRCE’S TEMPORAL LAB",
+        text: `<p>คุณพบแม่มด Circe ในห้องทดลองชีวภาพ เธอสามารถย้อนพันธุกรรมลูกเรือของคุณให้กลายเป็นสัตว์ได้ด้วยการสลับโครงสร้าง DNA</p>`,
+        choices: [
+          { text: "1. ใช้สารต้านมิวเทชัน (Moly) ป้องกันตัว แล้วเจรจาขอพิกัดทิศทางไปต่อ", mem: 15, ent: 0 },
+          { text: "2. ยอมให้เธอทดลองสลับเวลาช่วงสั้นๆ เพื่อแลกกับเบาะแสของบ้าน", mem: 5, ent: 15 }
+        ]
+      },
+      {
+        title: "SCENE 07 // SIRENS' FREQUENCY",
+        text: `<p>ยานเดินทางผ่านย่านความถี่คลื่นปริศนา เสียงร้องเพลงของ Sirens ไม่ใช่เพลง แต่เป็นเสียง 'เหตุการณ์ในอนาคต' ที่บอกว่าเพเนโลฟีกำลังจะแต่งงานใหม่</p>`,
+        choices: [
+          { text: "1. เอาเทปอุดหูทุกคนไว้ ไม่ฟังอนาคตที่ยังมาไม่ถึง", mem: 10, ent: 0 },
+          { text: "2. มัดตัวเองไว้กับเสากระโดงเรือเพื่อฟังเสียงอนาคตให้จบทุกโน้ต", mem: 20, ent: 20 }
+        ]
+      },
+      {
+        title: "SCENE 08 // SCYLLA & CHARYBDIS DIMENSION",
+        text: `<p>ตรงหน้าคือทางแยกสองสาย: ฝั่งซ้ายคือ <strong>Scylla (หลุมดำ 6 หัว)</strong> ที่จะกลืนลูกเรือแน่นอน 6 คน ฝั่งขวาคือ <strong>Charybdis (อ่างน้ำเวียนมิติ)</strong> ที่เสี่ยงตายยกยาน</p>`,
+        choices: [
+          { text: "1. ยอมเสียสละตามหลักการ สละลูกเรือ 6 คนผ่านเส้นทาง Scylla", mem: 5, ent: 10 },
+          { text: "2. ดริฟต์ยานเข้า Charybdis เพื่อวัดดวงหาช่องแคบมิติเวลา", mem: 15, ent: 20 }
+        ]
+      },
+      {
+        title: "SCENE 09 // CATTLE OF HELIOS (ENERGY CORE)",
+        text: `<p>ลูกเรือที่หิวโหยลักลอบดึงพลังงานจาก 'แกนปฏิกรณ์ Sun Core' ของเทพ Helios ทั้งที่รู้ว่าการแตะต้องมันจะทำให้เทพเจ้าส่งบทลงโทษเร่งค่า Entropy ให้เต็ม</p>`,
+        choices: [
+          { text: "1. ห้ามปรามและซ่อมแซมแกนปฏิกรณ์ แม้ทุกคนจะต้องอดอยาก", mem: 15, ent: -10 },
+          { text: "2. ยอมปล่อยให้ใช้พลังงานเพื่อให้ยานยังมีแรงขับเคลื่อนไปต่อ", mem: 0, ent: 20 }
+        ]
+      },
+      {
+        title: "SCENE 10 // CALYPSO'S ENDLESS LOOP",
+        text: `<p>คุณถูกกักขังอยู่ในเกาะ Ogygia มิติเวลาสมบูรณ์แบบที่ไม่มีวันแก่ ไม่มีวันตาย Calypso เสนอให้คุณอยู่ที่นี่ตลอดกาลในฐานะอมตะ</p>`,
+        choices: [
+          { text: "1. ปฏิเสธความเป็นอมตะ ยอมกลับไปหาความตายและเวลาที่เหลือน้อยในอิธากา", mem: 20, ent: 0 },
+          { text: "2. ยอมรับข้อเสนอ สลายตัวตนกลายเป็นสสารของจักรวาลอยู่ที่นี่ตลอดกาล", mem: 0, ent: 30 }
+        ]
+      }
+    ];
+
+    function renderStep() {
+      const current = script[state.step - 1];
+      document.getElementById('step-count').innerText = `${state.step}/10`;
+      document.getElementById('scene-title').innerText = current.title;
+      document.getElementById('story-text').innerHTML = current.text;
+
+      const container = document.getElementById('choices-container');
+      container.innerHTML = '';
+
+      current.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-4 bg-slate-950/80 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/70 rounded-lg text-sm sm:text-base text-slate-100 font-medium transition-all duration-200 cursor-pointer backdrop-blur-md shadow-lg hover:translate-x-1";
+        btn.innerText = choice.text;
+        btn.onclick = () => {
+          playClickSFX();
+          state.memory += choice.mem;
+          state.entropy += choice.ent;
+          document.getElementById('memory-pts').innerText = state.memory;
+          document.getElementById('entropy-pts').innerText = state.entropy + '%';
+
+          if (state.step < 10) {
+            state.step++;
+            renderStep();
+          } else {
+            showEnding();
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function showEnding() {
+      document.getElementById('step-count').innerText = '10/10';
+      const container = document.getElementById('choices-container');
+      container.innerHTML = '';
+
+      let endTitle = "";
+      let endText = "";
+
+      if (state.entropy >= 80) {
+        endTitle = "ENDING A // LOST IN TIME ENTROPY";
+        endText = `<p class="text-rose-400 font-bold">ความวุ่นวายของเวลาทะลุขีดจำกัด!</p><p>โครงสร้างจิตวิญญาณของคุณแหลกสลายกลายเป็นละอองควอนตัม คุณกลายเป็นเพียงเสียงคลื่นซ่าๆ ในวิทยุที่ล่องลอยกลางอวกาศชั่วนิรันดร์ โดยไม่เคยไปถึงอิธากา...</p>`;
+      } else if (state.memory >= 100) {
+        endTitle = "ENDING B // PERFECT RETURN (ITHACA REALIZED)";
+        endText = `<p class="text-emerald-400 font-bold">คุณพิชิตมิติเวลาและกู้คืนความทรงจำสมบูรณ์!</p><p>ยานของคุณลงจอดที่อิธากาอย่างปลอดภัย นาฬิกากลับมาเดินหน้าเป็นปกติ คุณได้สวมกอดเพเนโลพีและลูกชายอีกครั้ง ในเวลาปัจจุบันที่ถูกต้อง</p>`;
+      } else {
+        endTitle = "ENDING C // THE BITTERSWEET TIMELINE";
+        endText = `<p class="text-amber-400 font-bold">คุณกลับถึงบ้าน... แต่เวลาผ่านไปไกลกว่าที่คิด</p><p>คุณกลับมาถึงอิธากาสำเร็จ แต่พบว่าเวลาบนโลกผ่านไปแล้วกว่า 80 ปี คนที่คุณรักกลายเป็นเพียงประวัติศาสตร์ แต่ความทรงจำของคุณยังคงอยู่ตลอดไป</p>`;
+      }
+
+      document.getElementById('scene-title').innerText = endTitle;
+      document.getElementById('story-text').innerHTML = `
+        ${endText}
+        <hr class="border-slate-800 my-4">
+        <p class="text-sm text-slate-400">SCORE SUMMARY:<br>• Total Memory Recovered: <b class="text-emerald-400">${state.memory}</b><br>• Final Entropy Level: <b class="text-rose-400">${state.entropy}%</b></p>
+      `;
+
+      const restartBtn = document.createElement('button');
+      restartBtn.className = "w-full p-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-lg transition-all cursor-pointer text-center shadow-xl";
+      restartBtn.innerText = "↻ RESTART TIMELINE (เล่นใหม่อีกครั้ง)";
+      restartBtn.onclick = () => {
+        playClickSFX();
+        state = { memory: 0, entropy: 0, step: 1 };
+        document.getElementById('memory-pts').innerText = '0';
+        document.getElementById('entropy-pts').innerText = '0%';
+        renderStep();
+      };
+      container.appendChild(restartBtn);
+    }
+
+    // Start Game Initialization
+    renderStep();
+  </script>
+</body>
+</html>
